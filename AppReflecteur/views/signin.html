@@ -2,12 +2,40 @@
 <html lang="fr">
     <head>
         <title>Sign in</title>
+        <link rel="stylesheet" href="/client.css">
     </head>
     <body>
+        <nav class="navbar">
+            <a href="/signin">Sign in</a>
+            <a href="/messages">Menu</a>
+            <a href="newmessage">New message</a>
+            <a href="/logout">Sign out</a>
+        </nav>
+        <script src="f_signin.js"></script>
         <form method="POST" action="/signin">
-            User: <input type="text" name="user">
-            Password: <input type="text" name="pwd">
-            <button>Login</button>
+            <div>
+                <p id ="title">Sign in ! </p>
+            </div>
+            <div>
+                Name:<input type="text" id= "name" name="name">
+            </div>
+            <div>
+                 User-name: <input type="text" id="user" name="user">
+            </div>
+            <div>
+                <button type="button" id="sugestion">
+                You are not inspired ? Let us help you!
+             </button>
+            </div>
+            <div>
+                <p id="sugestionpos" style="color: red;"></p>
+            </div>
+            <div>
+                 Password: <input type="text" name="pwd">
+            </div>
+            <div>
+                 <button type="submit">Create account</button>
+            </div>
         </form>
-    </body>
+    </body> 
 </html>
