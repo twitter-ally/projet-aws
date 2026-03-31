@@ -1,3 +1,4 @@
 node_modules/
 *.sqlite3
 AppReflecteur/package-lock.json
+AppReflecteur/package.json
