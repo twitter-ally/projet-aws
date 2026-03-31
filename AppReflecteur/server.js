@@ -35,9 +35,10 @@ app.get("/messages", (req, res) => {
 // redirection après le json gérée côté client
 
 // ajouter de l'échappement de texte sur les points d'entrée + chiffrement mdp
-
-
-
+// il faut créer avant la base de données parce que sinon signin fait une erreur 
+knex.schema.withSchema('public').createTable('users', function (table) {
+  table.incr;
+});
 // créer nouvel utilisateur retour au format json
 app.post('/signin', async (req, res) => {
   const {name, user, pwd} = req.body;
@@ -63,7 +64,7 @@ app.post('/signin', async (req, res) => {
 // login d'un utilisateur
 app.post('/signin', async (req, res) => {
   const {name, user , pwd} = req.body;
-  if (!user || !pwd) {
+  if (!user?.trim() || !pwd?.trim()) {
     return res.json({error: "Username et mot de passe obligatoires"});
   }
   try {
