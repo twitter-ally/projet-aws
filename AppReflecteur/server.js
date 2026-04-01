@@ -83,7 +83,7 @@ app.post('/signin', async (req, res) => {
 });
 
 // afficher les messages
-app.get('/messages', async (req, res) => {
+app.get('/tot-messages', async (req, res) => {
   try {
     const messages = await knex('messages')
       .select('date', 'author', 'text')
