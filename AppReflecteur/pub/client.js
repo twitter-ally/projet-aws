@@ -1,7 +1,7 @@
 //charger les messages depuis le serveur
 async function loadMes() {
     try {
-        const res = await fetch('/tot-messages');
+        const res = await fetch('/messages');
         // si ça marche pas 
         if (!res.ok) {
             throw new Error('Something went wrong');

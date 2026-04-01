@@ -25,9 +25,6 @@ app.get("/signin", (req, res) => {
 app.get("/newmessage", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "newmessage.html"));
 });
-app.get("/messages", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "messages.html"));
-});
 
 /** ------------------------------------------------------ */
 // AJOUTER LES CODES DE STATUTS POUR LES RENDUS JSON ????
@@ -61,7 +58,7 @@ app.post('/signin', async (req, res) => {
 });
 
 // login d'un utilisateur
-app.post('/signin', async (req, res) => {
+app.post('/login', async (req, res) => {
   const {name, user , pwd} = req.body;
   if (!user || !pwd) {
     return res.json({error: "Username et mot de passe obligatoires"});
@@ -83,7 +80,7 @@ app.post('/signin', async (req, res) => {
 });
 
 // afficher les messages
-app.get('/tot-messages', async (req, res) => {
+app.get('/messages', async (req, res) => {
   try {
     const messages = await knex('messages')
       .select('date', 'author', 'text')
