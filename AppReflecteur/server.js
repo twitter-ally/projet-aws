@@ -26,6 +26,9 @@ app.get("/newmessage", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "newmessage.html"));
 });
 
+app.get("/messages", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "messages.html"));
+}); 
 /** ------------------------------------------------------ */
 // AJOUTER LES CODES DE STATUTS POUR LES RENDUS JSON ????
 
@@ -47,7 +50,6 @@ app.post('/signin', async (req, res) => {
         'pass' : pwd.trim()
       });
       res.redirect("/messages");
-      res.json({message: "Compte créé"});
     } catch (error) {
       console.error(error); // on peut enlever ça plus tard
       if (error.message.includes('UNIQUE')) {
@@ -80,7 +82,7 @@ app.post('/login', async (req, res) => {
 });
 
 // afficher les messages
-app.get('/messages', async (req, res) => {
+app.get('/tot-messages', async (req, res) => {
   try {
     const messages = await knex('messages')
       .select('date', 'author', 'text')

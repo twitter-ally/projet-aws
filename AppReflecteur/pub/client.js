@@ -1,7 +1,7 @@
 //charger les messages depuis le serveur
 async function loadMes() {
     try {
-        const res = await fetch('/messages');
+        const res = await fetch('/tot-messages');
         // si ça marche pas 
         if (!res.ok) {
             throw new Error('Something went wrong');
@@ -17,7 +17,7 @@ async function loadMes() {
         //vider avant de recharger
         base.innerHTML = "";
         // maitenant on doit faire une boucle pour afficher les messages 
-        mes.array.forEach(el => {
+        mes.forEach(el => {
             //pour chaque element on doit définir les différentes parties du message pour l'affichage 
             //1ère le message en entier ou on va avoir 2 parties
             const mes_tot = document.createElement("div");
@@ -30,7 +30,7 @@ async function loadMes() {
             user.textContent = el.author;
             const date = document.createElement("span");
             date.className = "date";
-            date.textContent =new Date(el.date).toLocalString();
+            date.textContent =new Date(el.date).toLocaleString();
             head.appendChild(user);
             head.appendChild(date);
             // contenu va être le message
