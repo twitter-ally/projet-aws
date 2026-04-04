@@ -19,8 +19,12 @@ app.all('/', (req, res) => {
   res.sendFile(__dirname + '/pub/index.html');
 });
 app.use(express.static(path.join(__dirname, "pub")));
-app.get("/signin", (req, res) => {
+// NE PAS INCLURE CAR TOUT SERVI COTE CLIENT
+/*app.get("/signin", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "signin.html"));
+});
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "login.html"));
 });
 app.get("/newmessage", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "newmessage.html"));
@@ -28,11 +32,8 @@ app.get("/newmessage", (req, res) => {
 
 app.get("/messages", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "messages.html"));
-}); 
+}); */
 /** ------------------------------------------------------ */
-// AJOUTER LES CODES DE STATUTS POUR LES RENDUS JSON ????
-
-// redirection après le json gérée côté client
 
 // ajouter de l'échappement de texte sur les points d'entrée + chiffrement mdp
 
@@ -49,7 +50,7 @@ app.post('/signin', async (req, res) => {
         'user' : user.trim(),
         'pass' : pwd.trim()
       });
-      res.redirect("/messages");
+      res.json({message: "Utilisateur créé"});
     } catch (error) {
       console.error(error); // on peut enlever ça plus tard
       if (error.message.includes('UNIQUE')) {
@@ -82,7 +83,7 @@ app.post('/login', async (req, res) => {
 });
 
 // afficher les messages
-app.get('/tot-messages', async (req, res) => {
+app.get('/messages', async (req, res) => {
   try {
     const messages = await knex('messages')
       .select('date', 'author', 'text')
@@ -98,6 +99,7 @@ app.get('/tot-messages', async (req, res) => {
 app.post('/post', async (req, res) => {
   const author = req.body.author;
   const text = req.body.text;
+  const pwd = req.body.pwd;
   if (!author || author.trim() === '' || !text || text.trim() === '') {
     return res.json({error: "Donnée manquante pour new message"});
   }
@@ -110,7 +112,7 @@ app.post('/post', async (req, res) => {
     // ajout du msg ensuite
     await knex('messages').insert({ // la date est automatique par défaut
         'author' : author.trim(),
-        'text' : text.trim()
+        'text' : text
       });
     res.json({message: "Nouveau message posté"});
   } catch (error) {

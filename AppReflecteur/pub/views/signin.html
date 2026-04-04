@@ -4,15 +4,9 @@
         <title>Sign in</title>
         <link rel="stylesheet" href="/client.css">
     </head>
-    <body>
-        <nav class="navbar">
-            <a href="/signin">Sign in</a>
-            <a href="/messages">Menu</a>
-            <a href="newmessage">New message</a>
-            <a href="/logout">Sign out</a>
-        </nav>
-        <script src="f_signin.js"></script>
-        <form method="POST" action="/signin">
+    <body id="content">
+        <!-- nav créée automatiquement par le client -->
+        <form id="signinForm">
             <div>
                 <p id ="title">Sign in ! </p>
             </div>
@@ -31,7 +25,7 @@
                 <p id="sugestionpos" style="color: red;"></p>
             </div>
             <div>
-                 Password: <input type="password" name="pwd">
+                 Password: <input type="password" id="pwd" name="pwd">
             </div>
             <div>
                  <button type="submit">Create account</button>
