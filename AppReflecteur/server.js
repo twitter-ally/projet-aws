@@ -19,20 +19,7 @@ app.all('/', (req, res) => {
   res.sendFile(__dirname + '/pub/index.html');
 });
 app.use(express.static(path.join(__dirname, "pub")));
-// NE PAS INCLURE CAR TOUT SERVI COTE CLIENT
-/*app.get("/signin", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "signin.html"));
-});
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "login.html"));
-});
-app.get("/newmessage", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "newmessage.html"));
-});
 
-app.get("/messages", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "messages.html"));
-}); */
 /** ------------------------------------------------------ */
 
 // ajouter de l'échappement de texte sur les points d'entrée + chiffrement mdp
@@ -121,4 +108,20 @@ app.post('/post', async (req, res) => {
   }
 });
 
-app.listen(3000);
+const https = require('node:https');
+const fs = require('node:fs');
+if (fs.existsSync('private-key.pem') && fs.existsSync('certificate.pem')) {
+  const options = {
+    key: fs.readFileSync('private-key.pem'),
+    cert: fs.readFileSync('certificate.pem')
+  };
+  https.createServer(options, app).listen(3000, () => {
+    console.log("Serveur HTTPS lancé sur https://localhost:3000");
+  });
+} else {
+  app.listen(3000, () => {
+    console.log("Serveur HTTP lancé sur http://localhost:3000");
+    console.log("Pour activer HTTPS, générer le certificat depuis AppReflecteur/ avec :");
+    console.log("openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -keyout private-key.pem -out certificate.pem");
+  });
+}
