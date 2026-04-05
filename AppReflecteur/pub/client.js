@@ -1,3 +1,5 @@
+let refreshInterval = null;
+
 // récup le user s'il est connecté
 function getUser() {
     const user = sessionStorage.getItem('user');
@@ -77,6 +79,7 @@ function navbar() {
 
 //charger les messages depuis le serveur
 async function loadMes() {
+    clearInterval(refreshInterval);
     await loadView('/views/messages.html');
     try {
         const res = await fetch('/messages');
@@ -125,10 +128,12 @@ async function loadMes() {
     catch (err) {
         console.error("Erreur :", err);
     }
+    refreshInterval = setInterval(loadMes, 5000);
 }
 
 // vue pour sign in (le formulaire bien envoyé avec ajax)
 async function viewSignin() {
+    clearInterval(refreshInterval);
     await loadView('/views/signin.html');
     // suggestion de username
     const script = document.createElement("script");
@@ -147,7 +152,7 @@ async function viewSignin() {
                 body: JSON.stringify({ user, pwd })
             })
                 .then(res => res.json());
-            setTimeout(() => viewLogin(), 2000);
+            setTimeout(() => viewLogin(), 1000);
         } catch (err) {
             console.error(err);
         }
@@ -156,6 +161,7 @@ async function viewSignin() {
 
 // vue pour log in (formulaire envoyé avec ajax)
 async function viewLogin() {
+    clearInterval(refreshInterval);
     await loadView('/views/login.html');
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -171,7 +177,7 @@ async function viewLogin() {
             sessionStorage.setItem('user', user);
             sessionStorage.setItem('pwd', pwd);
             navbar();
-            setTimeout(() => loadMes(), 2000);
+            setTimeout(() => loadMes(), 1000);
         } catch (err) {
             console.error(err);
         }
@@ -180,6 +186,7 @@ async function viewLogin() {
 
 // vue pour poster un new message (formulaire once again)
 async function viewPostMsg() {
+    clearInterval(refreshInterval);
     const logged = getUser();
     if (!logged) {
         viewLogin();
@@ -202,7 +209,7 @@ async function viewPostMsg() {
                 })
              })
                 .then(res => res.json());
-            setTimeout(() => loadMes(), 2000);
+            setTimeout(() => loadMes(), 1000);
         } catch (err) {
             console.error(err);
         }
@@ -211,5 +218,3 @@ async function viewPostMsg() {
 
 navbar();
 loadMes();
-// on fait une recharge chaque 10 secondes
-//setInterval(loadMes, 10000);
