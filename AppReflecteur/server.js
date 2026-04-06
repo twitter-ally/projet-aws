@@ -4,6 +4,17 @@ var path = require('path');
 app.use(express.json())
 app.use(express.static('pub'));
 app.use(express.urlencoded({ extended: true }));
+// création d'une session 
+const session = require('express-session');
+
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false // true seulement en HTTPS
+  }
+}));
 // DB
 var knex = require('knex')({
    client: 'sqlite3',
@@ -59,6 +70,7 @@ app.post('/login', async (req, res) => {
       .where('user', user.trim())
       .first();
     if (userData && userData.pass === pwd.trim()) {
+      req.session.user = userData.user; // on enregristre la session pour voir qui est connecté en mémoire !
       res.json({message: `${user} connecté(e)`});
     } else {
       res.json({error: "Pas le bon username et/ou mot de passe"});
@@ -69,13 +81,33 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// afficher les messages
+// afficher les messages public et aussi les privés 
 app.get('/messages', async (req, res) => {
+  const user = req.session.user; 
+  if (!user){
+    return res.status(401).json({error:"User non identifié"})
+  }
   try {
     const messages = await knex('messages')
       .select('date', 'author', 'text')
       .orderBy('date', 'desc');
-    res.json(messages);
+      const privateMsgraw = await knex ('privatemessages')
+      .select('date',
+        'sender as author',
+        'text',
+        'receiver'
+      )
+      .where('receiver', user);
+      //rajoutons variable is private pour js 
+      const privateMsg = privateMsgraw.map(m =>({
+        ...m, 
+        isPrivate:true
+      }));
+      const totMsg = [...messages, ...privateMsg];
+      // trier les messages par date
+      totMsg.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    res.json(totMsg);
   } catch (error) {
     console.error(error); // on peut enlever ça plus tard
     res.json({error: "Erreur serveur lors de la recup des messages"});
@@ -84,18 +116,17 @@ app.get('/messages', async (req, res) => {
 
 // publier un message
 app.post('/post', async (req, res) => {
-  const author = req.body.author;
+  const author = req.session.user;
   const text = req.body.text;
-  const pwd = req.body.pwd;
-  if (!author || author.trim() === '' || !text || text.trim() === '') {
+  if(!author){
+    return res.status(401).json({error: "User non identifié"})
+  }
+  if ( !text || text.trim() === '') {
     return res.json({error: "Donnée manquante pour new message"});
   }
   try {
     // vérif de l'utilisateur d'abord
     const user = await knex('users').where('user', author).first();
-    if (!user || user.pass !== pwd) {
-      return res.json({ error: "Echec de l'authentification pour new message" });
-    }
     // ajout du msg ensuite
     await knex('messages').insert({ // la date est automatique par défaut
         'author' : author.trim(),
@@ -107,7 +138,44 @@ app.post('/post', async (req, res) => {
     res.json({error: "Erreur serveur new message"});
   }
 });
-
+//envoyer message privé 
+app.post('/privatemessage' ,  async(req,res)=>{
+  const sender = req.session.user; 
+  const receiver = req.body.receiver; 
+  const text = req.body.text; 
+  const pwd =req.body.pwd; // on récupere pour bien vérfiier que ce user existe et qu'il peut envoyer un message
+  if(!sender){
+    return res.status(401).json({error: "User non identifié"})
+  }
+  if (!text || text.trim() === '' || !receiver || receiver.trim()=== '' ) {
+    return res.json({error: "Donnée manquante pour new message"});
+  }
+  // vérifier les 2 users 
+  try{
+    //vérfier sender
+    const user = await knex('users').where('user',sender).first(); 
+    if (!user || user.pass !== pwd){
+      return res.json({ error: "Echec de l'authentification pour envoyer ce message"})
+    }
+    //verfier receiver
+    const user_rec = await knex('users').where('user',receiver).first(); 
+    if (!user_rec){
+      return res.json({error: "Destinataire n'existe pas"})
+    }
+    //ajout message privé 
+    await knex('privatemessages').insert({
+      'sender' : sender.trim(),
+      'receiver' : receiver.trim(), 
+      'text' : text,
+      'date': new Date()
+    }); 
+    res.json({message: "Message envoyé"});
+}
+catch(error) {
+  console.error(error);
+  res.json({error: "Erreur serveur message privé"})
+}
+});
 const https = require('node:https');
 const fs = require('node:fs');
 if (fs.existsSync('private-key.pem') && fs.existsSync('certificate.pem')) {

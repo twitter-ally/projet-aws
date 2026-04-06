@@ -82,7 +82,9 @@ async function loadMes() {
     clearInterval(refreshInterval);
     await loadView('/views/messages.html');
     try {
-        const res = await fetch('/messages');
+        const res = await fetch('/messages',{
+            credentials: 'include'
+        });// je rajoute les cookies pour pouvoir faire req.session user 
         // si ça marche pas 
         if (!res.ok) {
             throw new Error('Something went wrong');
@@ -98,11 +100,16 @@ async function loadMes() {
         //vider avant de recharger
         base.innerHTML = "";
         // maitenant on doit faire une boucle pour afficher les messages 
+        // on rajoute une boucle if pour le cas oú c'est privé
         mes.forEach(el => {
             //pour chaque element on doit définir les différentes parties du message pour l'affichage 
             //1ère le message en entier ou on va avoir 2 parties
             const mes_tot = document.createElement("div");
             mes_tot.className = "message";
+            // cas privé
+            if (el.isPrivate){
+                mes_tot.classList.add('private');
+            }
             // le head que va etre la date et le user 
             const head = document.createElement("div");
             head.className = "head";
@@ -114,10 +121,19 @@ async function loadMes() {
             date.textContent =new Date(el.date).toLocaleString();
             head.appendChild(user);
             head.appendChild(date);
+            //cas privé
+            if(el.isPrivate){
+                const text_priv = document.createElement("span");
+                if (el.receiver === getUser().user){
+                    text_priv.textContent = "You have a prive message";
+                }
+                head.appendChild(text_priv)
+            }
             // contenu va être le message
             const text = document.createElement("div");
             text.className = "text";
             text.textContent = el.text;
+    
             //Rajoutons ces 2 parties au general
             mes_tot.appendChild(head);
             mes_tot.appendChild(text);
@@ -130,12 +146,70 @@ async function loadMes() {
     }
     refreshInterval = setInterval(loadMes, 5000);
 }
+//plus besoin fonction pour recu message 
+// Vue pour l'envoie d'un message privé 
+async function viewPrivateMsg(){
+    clearInterval(refreshInterval);
+    const logged = getUser();
+    if (!logged) {
+        viewLogin();
+        return;
+    }
+    await loadView('/views/privatemessage.html');
+    //je prend les données du formulaire pas les valeurs 
+    const form = document.getElementById("newMsgPriv");
+    const receiverInput = document.getElementById("receiver"); 
+    const msgInput = document.getElementById("message"); 
+    //je rajoute conversation pour que les utilisateurs puissent parles avec des differents users
+    const conv = document.getElementById("conversation");
+    // envoyer un message
+    form.addEventListener('submit', async(e)=>{
+        e.preventDefault(); 
+        //récuperons les valeurs 
+        const receiver = receiverInput.value.trim(); 
+        const msg = msgInput.value.trim(); 
+        if (!receiver || !msg){
+            console.log("Il manque des informations"); 
+            return;
+        }
+        try {
+            const data = await fetch('/privatemessage', {
+                method:'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    receiver: receiver,
+                    text: msg
+                })
+            }).then(res=>res.json());
+            console.log(data);
+            msgInput.value= "";// reset input vide 
 
+        } catch(err) {
+            console.error(err);
+        }
+    });
+}
 // vue pour sign in (le formulaire bien envoyé avec ajax)
 async function viewSignin() {
     clearInterval(refreshInterval);
     await loadView('/views/signin.html');
     // suggestion de username
+    function genUsername(name) {
+        return name.toLowerCase().replaceAll(" ", "_") +
+               "_" + Math.floor(Math.random() * 1000);
+    }
+    //lors que on clique sur le bouton sugestion on utilise cette fonction 
+    const sugBouton = document.getElementById("sugestion");
+    sugBouton.addEventListener("click", () => {
+        const name = document.getElementById("name").value;
+        const sug = genUsername(name);
+
+        document.getElementById("sugestionpos").textContent =
+            "What do you think about : " + sug;
+
+        document.getElementById("user").value = sug;
+    });
     const script = document.createElement("script");
     script.src = "/f_signin.js";
     document.getElementById('content').appendChild(script);
@@ -202,9 +276,8 @@ async function viewPostMsg() {
             const data = await fetch('/post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
-                    author: logged.user,
-                    pwd: logged.pwd,
                     text: text
                 })
              })
@@ -215,6 +288,8 @@ async function viewPostMsg() {
         }
     });
 }
+
+
 
 navbar();
 loadMes();
