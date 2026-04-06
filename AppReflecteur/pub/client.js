@@ -43,6 +43,15 @@ function navbar() {
         })
         nav.appendChild(btnNewMsg);
 
+        const btnPrivateMsg = document.createElement("a");
+        btnPrivateMsg.href = "#";
+        btnPrivateMsg.textContent = "Private message";
+        btnPrivateMsg.addEventListener('click', (e) => {
+            e.preventDefault();
+            viewPrivateMsg();
+        })
+        nav.appendChild(btnPrivateMsg);
+
         const btnLogout = document.createElement("a");
         btnLogout.href = "#";
         btnLogout.textContent = "Log out";
@@ -160,8 +169,7 @@ async function viewPrivateMsg(){
     const form = document.getElementById("newMsgPriv");
     const receiverInput = document.getElementById("receiver"); 
     const msgInput = document.getElementById("message"); 
-    //je rajoute conversation pour que les utilisateurs puissent parles avec des differents users
-    const conv = document.getElementById("conversation");
+
     // envoyer un message
     form.addEventListener('submit', async(e)=>{
         e.preventDefault(); 
