@@ -142,8 +142,7 @@ app.post('/post', async (req, res) => {
 app.post('/privatemessage' ,  async(req,res)=>{
   const sender = req.session.user; 
   const receiver = req.body.receiver; 
-  const text = req.body.text; 
-  const pwd =req.body.pwd; // on récupere pour bien vérfiier que ce user existe et qu'il peut envoyer un message
+  const text = req.body.text;
   if(!sender){
     return res.status(401).json({error: "User non identifié"})
   }
@@ -154,7 +153,7 @@ app.post('/privatemessage' ,  async(req,res)=>{
   try{
     //vérfier sender
     const user = await knex('users').where('user',sender).first(); 
-    if (!user || user.pass !== pwd){
+    if (!user){
       return res.json({ error: "Echec de l'authentification pour envoyer ce message"})
     }
     //verfier receiver
