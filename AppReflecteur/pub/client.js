@@ -192,6 +192,7 @@ async function viewPrivateMsg(){
             }).then(res=>res.json());
             console.log(data);
             msgInput.value= "";// reset input vide 
+            setTimeout(() => loadMes(), 1000);
 
         } catch(err) {
             console.error(err);
