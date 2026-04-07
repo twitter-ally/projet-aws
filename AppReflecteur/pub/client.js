@@ -57,6 +57,9 @@ function navbar() {
         btnLogout.textContent = "Log out";
         btnLogout.addEventListener('click', (e) => {
             e.preventDefault();
+            // log out côté serveur (on recup la route /logout)
+            viewLogout();
+            // log out côté client
             sessionStorage.removeItem('user');
             sessionStorage.removeItem('pwd');
             navbar();
@@ -95,6 +98,13 @@ async function loadMes() {
             credentials: 'include'
         });// je rajoute les cookies pour pouvoir faire req.session user 
         // si ça marche pas 
+        if (res.status === 401) {
+            const base = document.getElementById("messages-list");
+            if (base) {
+                base.innerHTML = "<p>Log in to see the messages</p>";
+                return;
+            }
+        }
         if (!res.ok) {
             throw new Error('Something went wrong');
         }
@@ -149,11 +159,10 @@ async function loadMes() {
             //puis finalement rajoutons le a la liste des messages
             base.appendChild(mes_tot);
         });
-    }
-    catch (err) {
+        refreshInterval = setInterval(loadMes, 5000);
+    } catch (err) {
         console.error("Erreur :", err);
     }
-    refreshInterval = setInterval(loadMes, 5000);
 }
 //plus besoin fonction pour recu message 
 // Vue pour l'envoie d'un message privé 
@@ -235,6 +244,10 @@ async function viewSignin() {
                 body: JSON.stringify({ user, pwd })
             })
                 .then(res => res.json());
+            if (data.error) {
+                alert(data.error); // FAIRE UN MEILLEUR AFFICHAGE ICI
+                return;
+            }
             setTimeout(() => viewLogin(), 1000);
         } catch (err) {
             console.error(err);
@@ -254,9 +267,14 @@ async function viewLogin() {
             const data = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ user, pwd })
             })
                 .then(res => res.json());
+            if (data.error) {
+                alert(data.error); // FAIRE UN MEILLEUR AFFICHAGE ICI
+                return;
+            }
             sessionStorage.setItem('user', user);
             sessionStorage.setItem('pwd', pwd);
             navbar();
@@ -296,6 +314,19 @@ async function viewPostMsg() {
             console.error(err);
         }
     });
+}
+
+// pour le log out
+async function viewLogout() {
+    clearInterval(refreshInterval);
+    try {
+        await fetch('/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 

@@ -2,10 +2,10 @@ var express = require('express');
 var app = express();
 var path = require('path');
 app.use(express.json())
-app.use(express.static('pub'));
 app.use(express.urlencoded({ extended: true }));
 // création d'une session 
 const session = require('express-session');
+const bcrypt = require('bcrypt'); // pour hacher les mdp
 
 app.use(session({
   secret: 'secret-key',
@@ -33,8 +33,6 @@ app.use(express.static(path.join(__dirname, "pub")));
 
 /** ------------------------------------------------------ */
 
-// ajouter de l'échappement de texte sur les points d'entrée + chiffrement mdp
-
 
 
 // créer nouvel utilisateur retour au format json
@@ -44,18 +42,19 @@ app.post('/signin', async (req, res) => {
     return res.json({error: "Username et mot de passe obligatoires"});
   }
   try {
-      await knex('users').insert({
-        'user' : user.trim(),
-        'pass' : pwd.trim()
-      });
-      res.json({message: "Utilisateur créé"});
-    } catch (error) {
-      console.error(error); // on peut enlever ça plus tard
-      if (error.message.includes('UNIQUE')) {
-        return res.json({error: "Username déjà utilisé"});
-      }
-      res.json({error: "Erreur lors du signin"});
+    const hash = await bcrypt.hash(pwd.trim(), 10);
+    await knex('users').insert({
+      'user' : user.trim(),
+      'pass' : hash
+    });
+    res.json({message: "Utilisateur créé"});
+  } catch (error) {
+    console.error(error); // on peut enlever ça plus tard
+    if (error.message.includes('UNIQUE')) {
+      return res.json({error: "Username déjà utilisé"});
     }
+    res.json({error: "Erreur lors du signin"});
+  }
 });
 
 // login d'un utilisateur
@@ -69,7 +68,8 @@ app.post('/login', async (req, res) => {
       .select('user', 'pass')
       .where('user', user.trim())
       .first();
-    if (userData && userData.pass === pwd.trim()) {
+    const match = await bcrypt.compare(pwd.trim(), userData.pass);
+    if (userData && match) {
       req.session.user = userData.user; // on enregristre la session pour voir qui est connecté en mémoire !
       res.json({message: `${user} connecté(e)`});
     } else {
@@ -138,6 +138,7 @@ app.post('/post', async (req, res) => {
     res.json({error: "Erreur serveur new message"});
   }
 });
+
 //envoyer message privé 
 app.post('/privatemessage' ,  async(req,res)=>{
   const sender = req.session.user; 
@@ -169,12 +170,22 @@ app.post('/privatemessage' ,  async(req,res)=>{
       'date': new Date()
     }); 
     res.json({message: "Message envoyé"});
-}
-catch(error) {
-  console.error(error);
-  res.json({error: "Erreur serveur message privé"})
-}
+} catch(error) {
+    console.error(error);
+    res.json({error: "Erreur serveur message privé"})
+  }
 });
+
+// route pour log out afin de détruire l'id de session (côté serveur)
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({message: 'Logged out'});
+  });
+});
+
+
+// partie connection (soit HTTP soit HTTPS)
+
 const https = require('node:https');
 const fs = require('node:fs');
 if (fs.existsSync('private-key.pem') && fs.existsSync('certificate.pem')) {
