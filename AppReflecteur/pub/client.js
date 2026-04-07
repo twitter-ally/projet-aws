@@ -1,13 +1,21 @@
 let refreshInterval = null;
-
-// récup le user s'il est connecté
-function getUser() {
-    const user = sessionStorage.getItem('user');
-    const pwd = sessionStorage.getItem('pwd');
-    if (user && pwd) {
-        return {user, pwd};
+//moyen pour utilisateur de prouver son id
+//credentials dans fecth determine si les cookies seront envoyés dans la requete donc connecté 
+//fonctions qui va recuperer le user connecté de façon securisé 
+// on fait une promise pour avancer la sécurité (if logged marche)
+async function getUser(){
+    //on renvoie que le user
+    try {
+        const res = await fetch('/ses',{
+            credentials: 'include'
+        });
+        if(!res.ok) return null; 
+        const data = await res.json();
+        return data.user;
     }
-    return null;
+    catch(err){
+        return null; 
+    }
 }
 
 // charger une des vues dynamiquement (single page via ajax)
@@ -18,11 +26,11 @@ async function loadView(path) {
 }
 
 // construction navbar pour que ce soit dynamique en fonction de si le user est logged in ou non
-function navbar() {
+async function navbar() {
     const nav = document.getElementById("navbar");
     nav.innerHTML = "";
 
-    const logged = getUser();
+    const logged = await getUser();
 
     const btnMsg = document.createElement("a");
     btnMsg.href = "#"; // pointe vers haut de page courante pour que ce soit bien fetch qui gère les routes (SPA)
@@ -55,14 +63,12 @@ function navbar() {
         const btnLogout = document.createElement("a");
         btnLogout.href = "#";
         btnLogout.textContent = "Log out";
-        btnLogout.addEventListener('click', (e) => {
+        btnLogout.addEventListener('click', async(e) => {
             e.preventDefault();
             // log out côté serveur (on recup la route /logout)
-            viewLogout();
+            await viewLogout(); // att logoout server
             // log out côté client
-            sessionStorage.removeItem('user');
-            sessionStorage.removeItem('pwd');
-            navbar();
+            await navbar(); 
             loadMes();
         })
         nav.appendChild(btnLogout);
@@ -120,6 +126,7 @@ async function loadMes() {
         base.innerHTML = "";
         // maitenant on doit faire une boucle pour afficher les messages 
         // on rajoute une boucle if pour le cas oú c'est privé
+        const currentUser = await getUser(); // on le met içi parce que await pas dedans boucle
         mes.forEach(el => {
             //pour chaque element on doit définir les différentes parties du message pour l'affichage 
             //1ère le message en entier ou on va avoir 2 parties
@@ -143,8 +150,8 @@ async function loadMes() {
             //cas privé
             if(el.isPrivate){
                 const text_priv = document.createElement("span");
-                if (el.receiver === getUser().user){
-                    text_priv.textContent = "You have a prive message";
+                if (currentUser && el.receiver === currentUser){
+                    text_priv.textContent = "You have a private message";
                 }
                 head.appendChild(text_priv)
             }
@@ -168,7 +175,7 @@ async function loadMes() {
 // Vue pour l'envoie d'un message privé 
 async function viewPrivateMsg(){
     clearInterval(refreshInterval);
-    const logged = getUser();
+    const logged = await getUser();
     if (!logged) {
         viewLogin();
         return;
@@ -275,9 +282,7 @@ async function viewLogin() {
                 alert(data.error); // FAIRE UN MEILLEUR AFFICHAGE ICI
                 return;
             }
-            sessionStorage.setItem('user', user);
-            sessionStorage.setItem('pwd', pwd);
-            navbar();
+            await navbar();
             setTimeout(() => loadMes(), 1000);
         } catch (err) {
             console.error(err);
@@ -288,7 +293,7 @@ async function viewLogin() {
 // vue pour poster un new message (formulaire once again)
 async function viewPostMsg() {
     clearInterval(refreshInterval);
-    const logged = getUser();
+    const logged = await getUser();
     if (!logged) {
         viewLogin();
         return;
@@ -329,7 +334,7 @@ async function viewLogout() {
     }
 }
 
-
-
-navbar();
-loadMes();
+(async () => {
+    await navbar();
+    loadMes();
+})()

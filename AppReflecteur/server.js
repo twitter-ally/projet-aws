@@ -12,7 +12,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false // true seulement en HTTPS
+    secure: false ,// true seulement en HTTPS
+    httpOnly: true, // empêche accés JS
+    sameSite: 'lax' // anti CSRF
   }
 }));
 // DB
@@ -34,6 +36,16 @@ app.use(express.static(path.join(__dirname, "pub")));
 /** ------------------------------------------------------ */
 
 
+
+//envoyer les données de session pour getUser
+app.get('/ses', (req,res)=>{
+  if (!req.session.user){// on vérifie si session existe coté serveur
+    return res.status(401).json({error: "Pas identifié "});
+  }// puis on envoie user (info pas importante)
+  res.json({
+    user: req.session.user
+  });
+});
 
 // créer nouvel utilisateur retour au format json
 app.post('/signin', async (req, res) => {
@@ -68,6 +80,9 @@ app.post('/login', async (req, res) => {
       .select('user', 'pass')
       .where('user', user.trim())
       .first();
+    if(!userData){
+      return res.json({error: "Pas le bon username et/ou mot de passe!"})
+    }
     const match = await bcrypt.compare(pwd.trim(), userData.pass);
     if (userData && match) {
       req.session.user = userData.user; // on enregristre la session pour voir qui est connecté en mémoire !
