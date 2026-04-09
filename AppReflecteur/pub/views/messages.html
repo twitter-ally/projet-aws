@@ -12,7 +12,14 @@
       Un message est ensuite affiché indiquant si l’action a réussi ou non --> 
     <!-- nav créée automatiquement par le client -->
 <!-- -->
-    <div id = "messages-list">
+    <div id="main-content">
+        <div id="quick-post" style="display:none;">
+            <form id="quickPost" class="quickPost">
+                <textarea id="quick-message" placeholder="What do you want to share?" rows="3" maxlength="400" required></textarea>
+                <div class="buttons"><button type="submit">Post</button></div>
+            </form>
+        </div>
+        <div id = "messages-list"></div>
     </div>
     </body>
 </html>

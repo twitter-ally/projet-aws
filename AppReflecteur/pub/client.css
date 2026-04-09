@@ -13,14 +13,16 @@ body:not(.messages-feed){
 .messages-feed{
     display: block;
     background: #f5f7fa;
+    min-height: 100vh;
+    padding-top: 20px;
 }
-#messages-list{
-    max-width: 10000px;
-    margin: 80px auto;
+#messages-list {
+    max-width: 700px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding: 10px;
+    padding: 10px 15px;
 }
 .message {
     background: white;
@@ -94,10 +96,63 @@ nav{
     width: fit-content;          
     padding: 40px;
     border-radius: 10px;    
-    box-shadow: 0 10px 22px rgba(0,0,0,0.1); 
+    box-shadow: 0 10px 22px rgba(0,0,0,0.1);
     flex-direction: column;
     align-items: stretch;
     display: flex;
     gap: 15px;
+    z-index: 200;
 
+}
+.main-content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding-left: 180px;
+}
+#quick-post {
+    margin: 20px auto 35px;
+    padding: 0 15px;
+}
+.quickPost {
+    background: white;
+    border-radius: 20px;
+    padding: 25px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+.quickPost textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: none;
+    font-size: 1.1rem;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    outline: none;
+}
+.quickPost textarea:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 15px;
+}
+.buttons button {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.quickPost button {
+    background: #f5e7d4;
+    color: rgb(0, 0, 0);
+    border: none;
+}
+.quickPost button:hover {
+    background: #6c5a48;
+    color: white;
 }

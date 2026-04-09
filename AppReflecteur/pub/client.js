@@ -99,6 +99,7 @@ async function navbar() {
 async function loadMes() {
     clearInterval(refreshInterval);
     await loadView('/views/messages.html');
+    await quickPost();
     try {
         const res = await fetch('/messages',{
             credentials: 'include'
@@ -332,6 +333,33 @@ async function viewLogout() {
     } catch (err) {
         console.error(err);
     }
+}
+
+// pour le post de new msg en haut
+async function quickPost() {
+    // Afficher la zone de post rapide si connecté
+const currentUserForPost = await getUser();
+if (currentUserForPost) {
+    const quickPost = document.getElementById('quick-post');
+    quickPost.style.display = 'block'; // il était avant en invisible donc on l'affiche
+    document.getElementById('quickPost').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = document.getElementById('quick-message').value.trim();
+        if (!text) return;
+        try {
+            const data = await fetch('/post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({text})
+            }).then(res => res.json());
+            document.getElementById('quick-message').value = '';
+            loadMes();
+        } catch (err) {
+            console.error(err);
+        }
+    });
+}
 }
 
 (async () => {
