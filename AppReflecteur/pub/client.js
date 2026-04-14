@@ -96,10 +96,12 @@ async function navbar() {
 // GESTION DES VUES
 
 //charger les messages depuis le serveur
-async function loadMes() {
+async function loadMes(refresh = false) {
     clearInterval(refreshInterval);
-    await loadView('/views/messages.html');
-    await quickPost();
+    if (!refresh) { // on charge la vue et le quickPost seulement au 1er chargement (pas de disparition de msg + pas de remontée en scrollant)
+        await loadView('/views/messages.html');
+        await quickPost();
+    }
     try {
         const res = await fetch('/messages',{
             credentials: 'include'
@@ -123,11 +125,10 @@ async function loadMes() {
             console.error("Le feed n'est pas bien défini");
             return;
         }
-        //vider avant de recharger
-        base.innerHTML = "";
         // maitenant on doit faire une boucle pour afficher les messages 
         // on rajoute une boucle if pour le cas oú c'est privé
         const currentUser = await getUser(); // on le met içi parce que await pas dedans boucle
+        const fragment = document.createDocumentFragment(); // fragment utilisé pour build les msg dedans et pas au fur et à mesure direct
         mes.forEach(el => {
             //pour chaque element on doit définir les différentes parties du message pour l'affichage 
             //1ère le message en entier ou on va avoir 2 parties
@@ -165,9 +166,14 @@ async function loadMes() {
             mes_tot.appendChild(head);
             mes_tot.appendChild(text);
             //puis finalement rajoutons le a la liste des messages
-            base.appendChild(mes_tot);
+            fragment.appendChild(mes_tot);
         });
-        refreshInterval = setInterval(loadMes, 5000);
+        // gérer le scroll pour pas que ça remonte au rechargement de la page
+        const scrollTop = base.scrollTop;
+        base.innerHTML = "";
+        base.appendChild(fragment);
+        base.scrollTop = scrollTop;
+        refreshInterval = setInterval(loadMes(true), 5000);
     } catch (err) {
         console.error("Erreur :", err);
     }
