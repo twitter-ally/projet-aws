@@ -1,12 +1,16 @@
 html, body{
-    height: 100%;
+    min-height: 100%;
+}
+body{
+    overflow-y: auto;
 }
 body:not(.messages-feed){
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     place-content: center;
     justify-content: center;
     background-color: antiquewhite;
+    padding-top: 40px;
 
 }
 
@@ -31,6 +35,9 @@ body:not(.messages-feed){
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     transition: 0.2s ease;
     min-height: 100px;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+
 }
 .message:hover {
     transform: translateY(-3px);
@@ -88,6 +95,7 @@ input{
     font-size:15px;
     text-align: center;
 }
+/* Menu en haut */
 nav{
     position:absolute;
     top: 20px;          
@@ -100,35 +108,59 @@ nav{
     flex-direction: column;
     align-items: stretch;
     display: flex;
-    gap: 15px;
+    gap: 20px;
     z-index: 200;
-
+}
+nav a {
+    text-decoration: none; 
+    color: #2c3e50; 
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+nav a:hover {
+    color: brown;  
+}
+nav a:hover {
+    background: #f5e7d4;
+    padding: 5px 10px;
+    border-radius: 8px;
 }
 .main-content {
     max-width: 700px;
     margin: 0 auto;
     padding-left: 180px;
 }
-#quick-post {
-    margin: 20px auto 35px;
-    padding: 0 15px;
+/* Post en haut du main */
+.quickPost {
+    padding: 25px 30px;   
+    border-radius: 30px;  
+}
+.quickPost,
+form {
+    border-radius: 40px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
 }
 .quickPost {
     background: white;
-    border-radius: 20px;
-    padding: 25px 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
+    border-radius: 40px; 
+    padding: 40px;       
+    box-shadow: 0 10px 22px rgba(0,0,0,0.1); 
+    border: none; 
 }
 .quickPost textarea {
-    width: 100%;
-    min-height: 110px;
+    width: 90%;
+    min-height: 90px;
     resize: none;
-    font-size: 1.1rem;
-    padding: 15px;
+    margin: 0 auto; 
+    font-size: 16px; 
+    padding: 15px 20px;
     border: 1px solid #ddd;
-    border-radius: 16px;
+    border-radius: 14px; 
     outline: none;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .quickPost textarea:focus {
     border-color: #4a90e2;
@@ -141,11 +173,30 @@ nav{
     margin-top: 15px;
 }
 .buttons button {
-    padding: 12px 24px;
+    padding: 14px;
     border-radius: 12px;
+    font-size: 16px;
     font-weight: 600;
+    background: #f5e7d4;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: 0.2s;
+}
+/* Button post new msg */
+#newMsgForm button {
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f5e7d4;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#newMsgForm button:hover {
+    background: #6c5a48;
+    color: white;
 }
 .quickPost button {
     background: #f5e7d4;
@@ -153,6 +204,60 @@ nav{
     border: none;
 }
 .quickPost button:hover {
+    background: #6c5a48;
+    color: white;
+}
+/* Private msg */
+#receiver,
+#message {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+/*  */
+#message {
+    min-height: 120px;
+    resize: none;
+}
+
+#receiver::placeholder,
+#message::placeholder {
+    font-family: inherit;   /* same font as input */
+    font-size: 16px;
+    color: #999;
+}
+
+#receiver:focus,
+#message:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+#receiver {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+#newMsgPriv button {
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f5e7d4;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#newMsgPriv button:hover {
     background: #6c5a48;
     color: white;
 }
