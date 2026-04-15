@@ -229,7 +229,7 @@ form {
 
 #receiver::placeholder,
 #message::placeholder {
-    font-family: inherit;   /* same font as input */
+    font-family: inherit;   /* meme font */
     font-size: 16px;
     color: #999;
 }
@@ -260,4 +260,84 @@ form {
 #newMsgPriv button:hover {
     background: #6c5a48;
     color: white;
+}
+/*Sig in */
+#signinForm input {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+#signinForm input::placeholder {
+    font-size: 16px;
+    color: #999;
+}
+
+#signinForm input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+#signinForm button {
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f5e7d4;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+#title{
+    font-size: 30px;
+    text-align: center;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+#signinForm button:hover {
+    background: #6c5a48;
+    color: white;
+}
+/*Login*/
+#loginForm input {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+#loginForm input::placeholder {
+    font-size: 16px;
+    color: #999;
+}
+
+#loginForm input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+#loginForm button {
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f5e7d4;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
