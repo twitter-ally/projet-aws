@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server.js",
-    "init-db": "node initDB.js"
+    "init-db": "node db_init.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
