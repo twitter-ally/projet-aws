@@ -73,7 +73,6 @@ app.post('/signin', async (req, res) => {
     });
     res.json({message: "Utilisateur créé"});
   } catch (error) {
-    console.error(error); // on peut enlever ça plus tard
     if (error.message.includes('UNIQUE')) {
       return res.json({error: "Username déjà utilisé"});
     }
@@ -100,14 +99,12 @@ app.post('/login', loginLimit, async (req, res) => {
       // on va regener l'id de la session 
       req.session.regenerate((err) => {
         if (err) {
-          console.error(err);
           return res.status(500).json({ error: "Erreur session" });
         }
       req.session.user = userData.user; // on enregristre la session pour voir qui est connecté en mémoire !
       //on verifie que la session est bien enregistre
       req.session.save((err) => {
           if (err) {
-            console.error(err);
             return res.status(500).json({ error: "Erreur session" });
         }
       res.json({message: `${user} connecté(e)`});
@@ -117,7 +114,6 @@ app.post('/login', loginLimit, async (req, res) => {
       res.json({error: "Pas le bon username et/ou mot de passe"});
     }
   } catch (error) {
-    console.error(error); // on peut enlever ça plus tard
     res.json({error: "Erreur lors du login"});
   }
 });
@@ -150,7 +146,6 @@ app.get('/messages', async (req, res) => {
 
     res.json(totMsg);
   } catch (error) {
-    console.error(error); // on peut enlever ça plus tard
     res.json({error: "Erreur serveur lors de la recup des messages"});
   }
 });
@@ -168,6 +163,9 @@ app.post('/post', async (req, res) => {
   try {
     // vérif de l'utilisateur d'abord
     const user = await knex('users').where('user', author).first();
+    if (!user) {
+      return res.json({ error: "Echec de l'authentification pour envoyer ce message"});
+    }
     // ajout du msg ensuite
     await knex('messages').insert({ // la date est automatique par défaut
         'author' : author.trim(),
@@ -175,7 +173,6 @@ app.post('/post', async (req, res) => {
       });
     res.json({message: "Nouveau message posté"});
   } catch (error) {
-    console.error(error); // peut être supprimé
     res.json({error: "Erreur serveur new message"});
   }
 });
@@ -186,7 +183,7 @@ app.post('/privatemessage' ,  async(req,res)=>{
   const receiver = req.body.receiver; 
   const text = req.body.text;
   if(!sender){
-    return res.status(401).json({error: "User non identifié"})
+    return res.status(401).json({error: "User non identifié"});
   }
   if (!text || text.trim() === '' || !receiver || receiver.trim()=== '' ) {
     return res.json({error: "Donnée manquante pour new message"});
@@ -196,12 +193,12 @@ app.post('/privatemessage' ,  async(req,res)=>{
     //vérfier sender
     const user = await knex('users').where('user',sender).first(); 
     if (!user){
-      return res.json({ error: "Echec de l'authentification pour envoyer ce message"})
+      return res.json({ error: "Echec de l'authentification pour envoyer ce message"});
     }
     //verfier receiver
     const user_rec = await knex('users').where('user',receiver).first(); 
     if (!user_rec){
-      return res.json({error: "Destinataire n'existe pas"})
+      return res.json({error: "Destinataire n'existe pas"});
     }
     //ajout message privé 
     await knex('privatemessages').insert({
@@ -212,8 +209,7 @@ app.post('/privatemessage' ,  async(req,res)=>{
     }); 
     res.json({message: "Message envoyé"});
 } catch(error) {
-    console.error(error);
-    res.json({error: "Erreur serveur message privé"})
+    res.json({error: "Erreur serveur message privé"});
   }
 });
 

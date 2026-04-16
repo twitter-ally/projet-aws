@@ -247,7 +247,7 @@ async function loadMes(refresh = false) {
         base.innerHTML = "";
         base.appendChild(fragment);
         base.scrollTop = scrollTop;
-        refreshInterval = setInterval(loadMes(true), 5000);
+        refreshInterval = setInterval(() => loadMes(true), 5000);
     } catch (err) {
         console.error("Erreur :", err);
     }
