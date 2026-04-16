@@ -351,3 +351,35 @@ form {
     padding-top: 15px;
     margin-top: 5px;
 }
+
+.pwd-wrapper {
+    position: relative;
+    width: 100%;
+}
+.pwd-wrapper input {
+    width: 100%;
+    padding-right: 45px;
+    box-sizing: border-box;
+}
+.pwd-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.pwd-eye:hover {
+    opacity: 1;
+}
+
+.pwd-strength {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: none;
+}

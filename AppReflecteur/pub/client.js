@@ -98,6 +98,75 @@ async function navbar() {
     }
 }
 
+/**
+ * Permet d'afficher le mot de passe de façon temporaire (avec un oeil)
+ *
+ * @param {*} id identifiant html
+ * @returns 
+ */
+function affichageMdp(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const div = document.createElement("div");
+    div.className = "pwd-wrapper";
+    input.parentNode.insertBefore(div, input);
+    div.appendChild(input);
+
+    const eye = document.createElement("span");
+    eye.className = "pwd-eye";
+    eye.textContent = "👁";
+    div.appendChild(eye);
+
+    // on l'affiche quand on reste appuyé dessus, sinon c'est un mdp classique
+    eye.addEventListener("mousedown", () => input.type = "text");
+    eye.addEventListener("mouseup", () => input.type = "password");
+    eye.addEventListener("mouseleave", () => input.type = "password");
+}
+
+/**
+ * Permet d'afficher la force/faiblesse du mdp choisi lors du signin
+ *
+ * @param {*} id identifiant d'une balise html
+ * @returns 
+ */
+function forceMdp(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const indicator = document.createElement("div");
+    indicator.className = "pwd-strength";
+    input.closest(".pwd-wrapper").after(indicator);
+
+    input.addEventListener("input", () => {
+        const val = input.value;
+        // calcul du score en fonction de la taille, des lowercase/uppercase, des chiffres, des caractères spéciaux
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[!@#$%&*_\-+?]/.test(val)) score++;
+
+        const levels = [
+            { text: "Très faible", color: "red" },
+            { text: "Faible", color: "orange" },
+            { text: "Moyen", color: "green" },
+            { text: "Fort", color: "blue" }
+        ];
+        let level = null;
+        if (val.length > 0) {
+            level = levels[Math.min(score, 3)];
+        }
+
+        if (!level) {
+            indicator.style.display = "none";
+        } else {
+            indicator.style.display = "block";
+            indicator.textContent = level.text;
+            indicator.style.color = level.color;
+        }
+    });
+}
+
 // GESTION DES VUES
 
 //charger les messages depuis le serveur
@@ -235,6 +304,8 @@ async function viewPrivateMsg(){
 async function viewSignin() {
     clearInterval(refreshInterval);
     await loadView('/views/signin.html');
+    affichageMdp("pwd");
+    forceMdp("pwd");
     // suggestion de username
     function genUsername(name) {
         return name.toLowerCase().replaceAll(" ", "_") +
@@ -282,6 +353,7 @@ async function viewSignin() {
 async function viewLogin() {
     clearInterval(refreshInterval);
     await loadView('/views/login.html');
+    affichageMdp("pwd");
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const user = document.getElementById('user').value.trim();
