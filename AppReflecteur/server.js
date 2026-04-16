@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require('express');
 var app = express();
 var path = require('path');
@@ -8,13 +9,15 @@ const session = require('express-session');
 const bcrypt = require('bcrypt'); // pour hacher les mdp
 
 app.use(session({
-  secret: 'secret-key',
+  secret: process.env.SESSION_SECRET,//utilisant dotenv j'ai genere une session secrete pour que ça soit plus compliqué
   resave: false,
   saveUninitialized: false,
+  rolling: true , // a chaque requete reset timer sinon se reconnecter
   cookie: {
     secure: false ,// true seulement en HTTPS
     httpOnly: true, // empêche accés JS
-    sameSite: 'lax' // anti CSRF
+    sameSite: 'lax', // anti CSRF
+    maxAge: 100*60*60 // les sessions vont durer 1h
   }
 }));
 // DB
@@ -85,8 +88,22 @@ app.post('/login', async (req, res) => {
     }
     const match = await bcrypt.compare(pwd.trim(), userData.pass);
     if (userData && match) {
+      // on va regener l'id de la session 
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Erreur session" });
+        }
       req.session.user = userData.user; // on enregristre la session pour voir qui est connecté en mémoire !
+      //on verifie que la session est bien enregistre
+      req.session.save((err) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Erreur session" });
+        }
       res.json({message: `${user} connecté(e)`});
+      });
+    });
     } else {
       res.json({error: "Pas le bon username et/ou mot de passe"});
     }
