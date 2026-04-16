@@ -7,9 +7,10 @@ app.use(express.urlencoded({ extended: true }));
 // création d'une session 
 const session = require('express-session');
 const bcrypt = require('bcrypt'); // pour hacher les mdp
+const rateLimit = require('express-rate-limit'); // pour nb max essais login
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,//utilisant dotenv j'ai genere une session secrete pour que ça soit plus compliqué
+  secret: process.env.SESSION_SECRET || 'dev-secret-key',//utilisant dotenv j'ai genere une session secrete pour que ça soit plus compliqué / fallback pour pas créer le .env
   resave: false,
   saveUninitialized: false,
   rolling: true , // a chaque requete reset timer sinon se reconnecter
@@ -35,6 +36,14 @@ app.all('/', (req, res) => {
   res.sendFile(__dirname + '/pub/index.html');
 });
 app.use(express.static(path.join(__dirname, "pub")));
+
+const loginLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: "Trop de tentatives, réessayez dans 15 minutes" },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 /** ------------------------------------------------------ */
 
@@ -73,7 +82,7 @@ app.post('/signin', async (req, res) => {
 });
 
 // login d'un utilisateur
-app.post('/login', async (req, res) => {
+app.post('/login', loginLimit, async (req, res) => {
   const {name, user , pwd} = req.body;
   if (!user || !pwd) {
     return res.json({error: "Username et mot de passe obligatoires"});

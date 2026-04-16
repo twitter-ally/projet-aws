@@ -16,23 +16,12 @@ async function create_table_users() {
             pass VARCHAR(255) NOT NULL
         );
         `);
-
-    // ce qui suit peut être supprimé, c'est pour le debug + ajout de lignes
-    const info = await knex('users').columnInfo();
-    console.log(info);
-    await knex.raw(`INSERT INTO users VALUES ('admin', 'admin');`);
-    await knex.raw(`INSERT INTO users VALUES ('ilolo', 'abc');`);
-    var rows = await knex.raw(`
-        SELECT * FROM users;
-        `);
-    console.log(rows);
 }
 
 async function create_table_messages() {
     await knex.raw(`
         DROP TABLE IF EXISTS messages;
         `);
-    // AUTOINCREMENT pour SqlLite, AUTO_INCREMENT pour MySQL
     await knex.raw(`
         CREATE TABLE messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,22 +31,11 @@ async function create_table_messages() {
             CONSTRAINT fk FOREIGN KEY (author) REFERENCES users(user)
         );
         `);
-    
-    // ce qui suit peut être supprimé, c'est pour le debug + ajout de lignes
-    const info = await knex('messages').columnInfo();
-    console.log(info);
-    await knex.raw(`INSERT INTO messages (author, text) VALUES ('admin', 'Bonjour');`);
-    await knex.raw(`INSERT INTO messages (author, text) VALUES ('ilolo', 'Heyy');`);
-    var rows = await knex.raw(`
-        SELECT * FROM messages;
-        `);
-    console.log(rows);
 }
 async function create_table_privatemessages(){
     await knex.raw(`
         DROP TABLE IF EXISTS privatemessages;
         `);
-    // AUTOINCREMENT pour SqlLite, AUTO_INCREMENT pour MySQL
     await knex.raw(`
         CREATE TABLE privatemessages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,15 +47,6 @@ async function create_table_privatemessages(){
             CONSTRAINT fk_receiver FOREIGN KEY (receiver) REFERENCES users(user)
         );
         `);
-    
-    // ce qui suit peut être supprimé, c'est pour le debug + ajout de lignes
-    const info = await knex('privatemessages').columnInfo();
-    console.log(info);
-    await knex.raw(`INSERT INTO privatemessages (sender,receiver, text) VALUES ('admin','ilolo', 'Bonjour');`);
-    var rows = await knex.raw(`
-        SELECT * FROM privatemessages;
-        `);
-    console.log(rows);
 }
 
 async function initDB() {
