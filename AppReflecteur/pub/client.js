@@ -72,6 +72,11 @@ async function navbar() {
             loadMes();
         })
         nav.appendChild(btnLogout);
+
+        const userInfo = document.createElement("div");
+        userInfo.className = "logged-user";
+        userInfo.textContent = "Logged in as " + logged;
+        nav.appendChild(userInfo);
     } else { // on peut sign in ou log in
         const btnSignin = document.createElement("a");
         btnSignin.href = "#";
@@ -213,6 +218,10 @@ async function viewPrivateMsg(){
                     text: msg
                 })
             }).then(res=>res.json());
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
             console.log(data);
             msgInput.value= "";// reset input vide 
             setTimeout(() => loadMes(), 1000);
@@ -259,7 +268,7 @@ async function viewSignin() {
             })
                 .then(res => res.json());
             if (data.error) {
-                alert(data.error); // FAIRE UN MEILLEUR AFFICHAGE ICI
+                alert(data.error);
                 return;
             }
             setTimeout(() => viewLogin(), 1000);
@@ -286,7 +295,7 @@ async function viewLogin() {
             })
                 .then(res => res.json());
             if (data.error) {
-                alert(data.error); // FAIRE UN MEILLEUR AFFICHAGE ICI
+                alert(data.error);
                 return;
             }
             await navbar();
@@ -321,6 +330,10 @@ async function viewPostMsg() {
                 })
              })
                 .then(res => res.json());
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
             setTimeout(() => loadMes(), 1000);
         } catch (err) {
             console.error(err);
@@ -344,28 +357,32 @@ async function viewLogout() {
 // pour le post de new msg en haut
 async function quickPost() {
     // Afficher la zone de post rapide si connecté
-const currentUserForPost = await getUser();
-if (currentUserForPost) {
-    const quickPost = document.getElementById('quick-post');
-    quickPost.style.display = 'block'; // il était avant en invisible donc on l'affiche
-    document.getElementById('quickPost').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = document.getElementById('quick-message').value.trim();
-        if (!text) return;
-        try {
-            const data = await fetch('/post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({text})
-            }).then(res => res.json());
-            document.getElementById('quick-message').value = '';
-            loadMes();
-        } catch (err) {
-            console.error(err);
-        }
-    });
-}
+    const currentUserForPost = await getUser();
+    if (currentUserForPost) {
+        const quickPost = document.getElementById('quick-post');
+        quickPost.style.display = 'block'; // il était avant en invisible donc on l'affiche
+        document.getElementById('quickPost').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('quick-message').value.trim();
+            if (!text) return;
+            try {
+                const data = await fetch('/post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({text})
+                }).then(res => res.json());
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                document.getElementById('quick-message').value = '';
+                loadMes();
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    }
 }
 
 (async () => {

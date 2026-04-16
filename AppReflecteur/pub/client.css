@@ -341,3 +341,13 @@ form {
     transition: 0.2s;
     font-family:system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+.logged-user {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #999;
+    font-style: italic;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: 5px;
+}
