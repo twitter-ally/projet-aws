@@ -15,7 +15,7 @@ app.use(session({
   saveUninitialized: false,
   rolling: true , // a chaque requete reset timer sinon se reconnecter
   cookie: {
-    secure: false ,// true seulement en HTTPS
+    secure: true ,// on envoie que par https
     httpOnly: true, // empêche accés JS
     sameSite: 'lax', // anti CSRF
     maxAge: 100*60*60 // les sessions vont durer 1h
