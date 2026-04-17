@@ -1,6 +1,7 @@
 require('dotenv').config();
 var express = require('express');
 var app = express();
+app.set('trust proxy', 1); // pour render , pour qu'il fasse confiance au proxy (que au 1er)
 var path = require('path');
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -18,7 +19,7 @@ app.use(session({
     secure: true ,// on envoie que par https
     httpOnly: true, // empêche accés JS
     sameSite: 'lax', // anti CSRF
-    maxAge: 100*60*60 // les sessions vont durer 1h
+    maxAge: 1000*60*60 // les sessions vont durer 1h
   }
 }));
 // DB
